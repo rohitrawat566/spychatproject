@@ -2,7 +2,7 @@ from spy_details import spy_name,spy_age,spy_rating      #import a file
 print "hello\n  Let's get started"                       #greeting, initializing
 
 STATUS_MESSAGE=["Available","Sleeping","At the gym","In a meeting","At work","At the movies","Busy","feeling wow!!"] #introducing list
-
+friends=[{"name": "Divyanshu","age": 22,"rating": 5.0,"is_online":True},{"name": "Kaaju","age": 21,"rating":4.5,"is_online":True}]#dictionary within a list
 
 def add_status(c_status):
     if c_status != None:
@@ -10,32 +10,53 @@ def add_status(c_status):
     else:
         print"You don't have any status currently.."
     existing_status=raw_input("You want to select from old status? Y/N")
-    if existing_status.upper()=='N':
-        new_status=raw_input('Enter your status : ')
+    if existing_status.upper()=="N":
+        new_status=raw_input("Enter your status : ")
         if len(new_status)>0:
             STATUS_MESSAGE.append(new_status)            #adding new status to list..
-    elif existing_status.upper()=='Y':
+    elif existing_status.upper()=="Y":
         serial_no=1
         for old_status in STATUS_MESSAGE:
             print str(serial_no)+old_status
             serial_no=serial_no+1
-        user_choice=input('Enter your choice :')
+        user_choice=input("Enter your choice :")
         new_status=STATUS_MESSAGE[user_choice-1]
     current_status=new_status
     return current_status
 
+def add_friend():
+    frnd= {"name":"",
+           "age":0,
+           "rating":0.0,
+           "is_online":True}
+    frnd["name"]=raw_input("What is your friend's name ? ")
+    frnd["age"]=input("What is your friend's age ?")
+    frnd["rating"]=input("What is your friend's rating ?")
+    frnd["is_online"]=True
+    if len(frnd["name"])>2 and 12<frnd["age"]<50 and frnd["rating"]>spy_rating :
+       friends.append(frnd)
+    else:
+        print 'Friend cannot be added..'
+    return len(friends)
+
+
 
 def start_chat(spy_name,spy_age,spy_rating):             #user define function created
     current_status=None
-    print 'Here are your options ' +spy_name             #Message given to the user
+    print "Here are your options " +spy_name             #Message given to the user
     show_menu = True                                     #by default value true for validation
     while show_menu:                                     #using loop for multiple times show the same thing
-        choice = input('What do you want to do ?\n1.Add a status\n2.Add a friend\n0.Exit ')#choices given to the userinput from the user
+        choice = input('What do you want to do ?\n1.Add a status\n2.Add a friend\n3.Send a message\n4.Read a message\n0.Exit ')#choices given to the userinput from the user
         if choice ==1:                                   #conditional Statement
             current_status = add_status(current_status)
-            print'Updated status is ' + current_status
+            print"Updated status is " + current_status
         elif choice==2:                                  #conditional Statement
-            print 'This will add a friend'               #Message for the user
+            no_of_friends=add_friend()
+            print "You have" + str(no_of_friends) + "friends"
+        elif choice==3:
+            print"Read a message"
+        elif choice==4:
+            print"Write a message"
         elif choice==0:                                  #conditional Statement
             show_menu=False                              #Terminating the program
         else:                                            #conditional Statement
@@ -51,8 +72,8 @@ elif spy_exist.upper()=="Y":                             #conditional statement
 
         if len(spy_name)>=2:                             #checking the lenth of the characters
             print "Welcome " + spy_name + " \n glad to have you with us. " # Welcome with user name
-            spy_salutation = raw_input("what should we call you(Mr. or Ms.)?     ") # Message for the user and input from the user
-            if spy_salutation.upper() == "MR." or spy_salutation.upper() == "MS." :  #conditional statement
+            spy_salutation = raw_input("what should we call you(Mr or Ms)?     ") # Message for the user and input from the user
+            if spy_salutation.upper() == "MR" or spy_salutation.upper() == "MS" :  #conditional statement
                 spy_name=spy_salutation.upper()+" "+spy_name.upper()     #Concatinating  2 string (name and salutation)
                 print "alright  " + spy_name + "   i'd like to know little more about you....." #asking for more details
                 spy_age=input("what is your age?   ")    #asking age for input
