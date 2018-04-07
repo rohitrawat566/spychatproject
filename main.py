@@ -1,6 +1,7 @@
 from steganography.steganography import Steganography #importing Steganography module
 from datetime import datetime#importing date time
 from spy_details import spy,Spy,ChatMessage      #import spy class from the file spy_details
+import csv
 
 time=datetime.now() # current date and time
 print time          #print current time and date
@@ -9,6 +10,29 @@ STATUS_MESSAGE=["Available","Sleeping","At the gym","In a meeting","At work","At
 frnd1=Spy("divyanshu","Mr",22,4.2)  #object of class spy
 frnd2=Spy("kaaju","Mr",21,4.0)
 friends=[frnd1,frnd2]
+
+def load_frnd():
+    with open('friends.csv', 'rb') as friends_data:
+        reader = list(csv.reader(friends_data))
+
+        for row in reader[1:]:
+            spy=Spy(name=row[0],salutation=row[1],age=row[3],rating=row[2])
+            friends.append(spy)
+
+load_frnd()
+
+def load_chats():
+    with open('chats.csv', 'rb') as friends_data:
+        reader = list(csv.reader(friends_data))
+
+        for row in reader[1:]:
+
+            l_chat = ChatMessage(message=row[0], sent_by_me=row[1], receiver_name=row[2])
+            Spy.chats.append(l_chat)
+
+load_chats()
+
+
 def add_status(c_status):   #define a function
     if c_status != None:    #condition
         print "Your current status is :\n "+ c_status #print current status
@@ -32,11 +56,18 @@ def add_status(c_status):   #define a function
 def add_friend():             #define add friend function
     frnd=Spy("","",0,0.0)
     frnd.name=raw_input("What is your friend's name ? ") #input friend's name
+    frnd.sal=raw_input('Mr or Ms')
     frnd.age=input("What is your friend's age ?")        #input friend's age
     frnd.rating=input("What is your friend's rating ?")  #input friend's rating
     frnd.is_online=True    #set friend is online
-    if len(frnd.name)>2 and 12<frnd.age<50 and frnd.rating>spy.rating :#check condition for adding friend
-       friends.append(frnd)   #add friend to friend list
+    if len(frnd.name)>2 and 12<frnd.age<50 and frnd.rating>spy.rating and frnd.name.isalpha() :#check condition for adding friend
+       frnd.name=frnd.name.upper()
+       frnd.sal=frnd.sal.upper()
+       with open('friends.csv', 'a') as friends_data:
+           writer = csv.writer(friends_data)
+           writer.writerow([frnd.name, frnd.sal, frnd.rating, frnd.age, frnd.is_online])
+           print 'your friend added successfully'
+
     else:
         print 'Friend cannot be added..'   #conditional statement
     return len(friends)       #return no of friends
@@ -65,9 +96,10 @@ def read_message():
     select_friend = select_frnd()  # index value
     output_path = raw_input('Which image you want to decode ? ')  # asking the user for an input of image
     secret_text = Steganography.decode(output_path)  # decoding message
-    a = int(secret_text[:1])  # checking if the right person is decoding the message or not
-    if a == select_friend:
-        secret_text = secret_text.replace(str(a), '')
+    num = int(secret_text[:1])  # checking if the right person is decoding the message or not
+    if num == select_friend:
+
+        secret_text = secret_text.replace(str(num), '')
         print 'Secret text is:' + secret_text  # Displaying for the user
         new_chat = ChatMessage(secret_text,False)
         friends[select_friend].chats.append(new_chat)  # appending the friend chat detail
@@ -81,7 +113,7 @@ def start_chat(spy_name,spy_age,spy_rating):             #user define function c
     print "Here are your options " +spy.name + "\nMENU"             #Message given to the user
     show_menu = True                                     #by default value true for validation
     while show_menu:                                     #using loop for multiple times show the same thing
-        choice = input('\n1.Add a status\n2.Add a friend\n3.Send a message\n4.Read a message\n0.Exit ')#choices given to the userinput from the user
+        choice = input('\n1.Add a status\n2.Add a friend\n3.Send a message\n4.Read a message\n5.Read chats\n0.Exit ')#choices given to the userinput from the user
         if choice ==1:                                   #conditional Statement
             current_status = add_status(current_status)
             print"Updated status is:\n  " + current_status
@@ -92,6 +124,8 @@ def start_chat(spy_name,spy_age,spy_rating):             #user define function c
             send_message()   #calling send function for encoding
         elif choice==4:
             read_message()   #calling read function for decoding
+        elif choice==5:
+            print 'this module is in process'  #working on it
         elif choice==0:                                  #conditional Statement
             show_menu=False                              #Terminating the program
         else:                                            #conditional Statement
