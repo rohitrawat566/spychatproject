@@ -12,7 +12,9 @@ class Spy:                #define class
 spy=Spy("Rohit","Mr",20,1.2)
 
 class ChatMessage:
-  def __init__(self,message,sent_by_me):
-    self.message=message
-    self.time=datetime.now()
-    self.sent_by_me=sent_by_me
+  def __init__(self,message,date,sent_by_me,receiver_name):
+      date=datetime.now()
+      self.message=message
+      self.date=date
+      self.sent_by_me=sent_by_me
+      self.receiver_name=receiver_name

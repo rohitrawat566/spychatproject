@@ -1,36 +1,56 @@
 from steganography.steganography import Steganography #importing Steganography module
-from datetime import datetime#importing date time
+from datetime import datetime                    #importing date time
 from spy_details import spy,Spy,ChatMessage      #import spy class from the file spy_details
-import csv
+import csv                                       #importing csv file
+from colorama import Fore,Style                  #importing the color
 
-time=datetime.now() # current date and time
-print time          #print current time and date
-print "hello\n  Let's get started" #greeting, initializing
+time=datetime.now()                # current date and time
+print time                         # print current time and date
+print "hello\n  Let's get started" # greeting, initializing
 STATUS_MESSAGE=["Available","Sleeping","At the gym","In a meeting","At work","At the movies","Busy","feeling wow!!"] #introducing list
-frnd1=Spy("divyanshu","Mr",22,4.2)  #object of class spy
+frnd1=Spy("divyanshu","Mr",22,4.2) # object of class spy
 frnd2=Spy("kaaju","Mr",21,4.0)
-friends=[frnd1,frnd2]
+friends=[frnd1,frnd2]              # append to list
 
-def load_frnd():
-    with open('friends.csv', 'rb') as friends_data:
-        reader = list(csv.reader(friends_data))
+def load_frnd():                   # for loading friends
+    with open('friends.csv', 'rb') as friends_data: #opening chats.csv
+        reader = list(csv.reader(friends_data))     #making list
 
-        for row in reader[1:]:
-            spy=Spy(name=row[0],salutation=row[1],age=row[3],rating=row[2])
-            friends.append(spy)
+        for row in reader[1:]:     #display values except heading row
+            spy=Spy(name=row[0],salutation=row[1],age=row[3],rating=row[2])#made object
+            friends.append(spy)    #append to list
 
-load_frnd()
+load_frnd()                #to load all friends
 
-def load_chats():
-    with open('chats.csv', 'rb') as friends_data:
-        reader = list(csv.reader(friends_data))
+def particular_chats():    #for specific friend
+    p_name = raw_input('Enter the name of particular friend')        # input name your friend
 
-        for row in reader[1:]:
+    with open('chats.csv','rU') as chats_data:                                     # opening chats.csv file
+        reader = list(csv.reader(chats_data))                                # making as a list
+        print 'Secret Text ' + 'Date/Month/Hour ' + 'Sender ' + 'Receiver '   # message to user
 
-            l_chat = ChatMessage(message=row[0], sent_by_me=row[1], receiver_name=row[2])
-            Spy.chats.append(l_chat)
+        for message, date, sent_by_me, receiver_name in reader[1:]:
+            if p_name==receiver_name:                                #conditional statement
 
-load_chats()
+                print Fore.BLACK+message, Fore.BLUE+date, Fore.BLACK+sent_by_me, Fore.RED+receiver_name# using colors
+                print(Style.RESET_ALL)                                                # changes default
+
+            else:
+                print Fore.CYAN+'no chats available...'
+                print (Style.RESET_ALL)
+
+
+def load_chats():                                      #for loading chats
+    with open('chats.csv','rU') as chats_data:              #opening chats.csv
+        reader = list(csv.reader(chats_data) )         #making as a list
+        print 'Secret Text ' + ' Date/Month/Hour ' + 'Sender Name ' + 'Receiver Name'#message to user
+        for row in reader[1:]:     #display values except heading row
+            print row
+
+
+
+
+
 
 
 def add_status(c_status):   #define a function
@@ -84,13 +104,26 @@ def send_message():            #sending a message
     select_friend=select_frnd()#index value
     original_image = raw_input('What is the name of your image ? ')  # asking the user for an input of image
     secret_text = raw_input('What is your secret text ? ')# secret text to be entered
-    output_path = "secretout.png" #predefined name of an image
-    secret_text=str(select_friend)+secret_text#assigning the index with the text fro a reading a message validation
-    Steganography.encode(original_image, output_path, secret_text)  # encoding the message with image
-    print 'Your message has been successfully encoded..'#displaying for the user
-    new_chat = ChatMessage(secret_text,True)
-    friends[select_friend].chats.append(new_chat)  # appending the friend chat detail
-    print'Your secret message is ready.'#displaying for the user
+    list = ['SOS', 'SAVE ME', 'HELP ME']         #list the special message
+    if secret_text.upper() in list:              #check
+        print Fore.RED + "inappropriate message" #message to user
+        print(Style.RESET_ALL)                   #reset colours
+    else:
+        output_path = "secretout.png" #predefined name of an image
+        secret_text=str(select_friend)+secret_text#assigning the index with the text fro a reading a message validation
+
+        Steganography.encode(original_image, output_path, secret_text)  # encoding the message with image
+        print 'Your message has been successfully encoded..'#displaying for the user
+        n = int(secret_text[:1])
+        secret_text = secret_text.replace(str(n), '')
+
+        print'Your secret message is ready.'#displaying for the user
+
+        with open('chats.csv', 'a') as chats_data:
+
+            writer = csv.writer(chats_data)
+
+            writer.writerow([secret_text,time.strftime("%d,%m,%H"),spy.name,friends[select_friend].name])
 
 def read_message():
     select_friend = select_frnd()  # index value
@@ -98,14 +131,16 @@ def read_message():
     secret_text = Steganography.decode(output_path)  # decoding message
     num = int(secret_text[:1])  # checking if the right person is decoding the message or not
     if num == select_friend:
-
         secret_text = secret_text.replace(str(num), '')
-        print 'Secret text is:' + secret_text  # Displaying for the user
-        new_chat = ChatMessage(secret_text,False)
+
+        print'Secret text is:' + Fore.RED + secret_text  # Displaying for the user
+
+        print (Style.RESET_ALL)
+        new_chat = ChatMessage(secret_text,time.strftime("%d,%m,%H"),spy.name,friends[select_friend].name)
         friends[select_friend].chats.append(new_chat)  # appending the friend chat detail
-        print'Your secret message has been saved...'  # Displaying for the user
+        print'Your secret message has been saved...'  # message user
     else:
-        print "You are not correct person for decoding this message"  # displaying it for the user
+        print "SORRY you can't decode this"           #message to user
 
 
 def start_chat(spy_name,spy_age,spy_rating):             #user define function created
@@ -125,7 +160,14 @@ def start_chat(spy_name,spy_age,spy_rating):             #user define function c
         elif choice==4:
             read_message()   #calling read function for decoding
         elif choice==5:
-            print 'this module is in process'  #working on it
+            chats = raw_input('load chat for all user(A)\n    or\nload chat for particular user(P)')
+            if chats.upper() == 'A':
+                load_chats()
+            elif chats.upper() == 'P':
+                particular_chats()
+            else:
+                print 'invalid entry'
+
         elif choice==0:                                  #conditional Statement
             show_menu=False                              #Terminating the program
         else:                                            #conditional Statement
